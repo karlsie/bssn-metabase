@@ -4,9 +4,14 @@ from airflow.operators.python import PythonOperator
 from datetime import datetime
 
 
-def transfer_postgres_to_postgres(**context):
-    source_hook = PostgresHook(postgres_conn_id="postgres_source")
-    target_hook = PostgresHook(postgres_conn_id="postgres_target")
+def transfer_postgres_to_postgres(
+        source_conn_id,
+        target_conn_id,
+        source_table,
+        target_table,
+):
+    source_hook = PostgresHook(postgres_conn_id=source_conn_id)
+    target_hook = PostgresHook(postgres_conn_id=target_conn_id)
 
     source_conn = source_hook.get_conn()
     target_conn = target_hook.get_conn()
@@ -16,21 +21,21 @@ def transfer_postgres_to_postgres(**context):
 
     try:
         # Example: Read from source
-        source_cursor.execute("""
-            SELECT id, name, created_at
-            FROM public.users
+        source_cursor.execute(f"""
+            SELECT *
+            FROM {source_table}
         """)
         rows = source_cursor.fetchall()
 
         if rows:
             # Example: Write to target
-            insert_query = """
-                INSERT INTO public.users_copy (id, name, created_at)
-                VALUES (%s, %s, %s)
-                ON CONFLICT (id) DO NOTHING
+            insert_query = f"""
+                INSERT INTO {target_table}
+                SELECT *
+                FROM {source_table}
             """
 
-            target_cursor.executemany(insert_query, rows)
+            target_cursor.execute(insert_query)
             target_conn.commit()
 
     finally:
@@ -50,6 +55,12 @@ with DAG(
     transfer_task = PythonOperator(
         task_id="transfer_data",
         python_callable=transfer_postgres_to_postgres,
+        op_kwargs={
+            "source_conn_id": "postgres_source",
+            "target_conn_id": "postgres_target",
+            "source_table": "users",
+            "target_table": "users_copy"
+        }
     )
 
     transfer_task
