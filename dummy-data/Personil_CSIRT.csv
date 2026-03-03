@@ -1,0 +1,9 @@
+Id_stakeholder,No_Registrasi_CSIRT,ID_Personil,Nama_Stakeholder,Nama_CSIRT,Nama_Personil,Jabatan_Kerja,Kontak,Email,Jabatan_CSIRT,Pelatihan,Penyelenggara_Pelatihan,Tahun_Pelatihan,Sertifikasi,Penyelenggara_Sertifikasi,Tahun_Sertifikasi
+001,083/CSIRT.01.10/BSSN/07/2022,10001,Lembaga AAAA,CSIRT BPJS Kesehatan,Budi,Pranata Komputer Muda PSSN,081212345678,abc@gmail.com,Ketua,Exercise A,Instansi A,2019,Sertifikasi A,BNSP,2019
+002,123/CSIRT.01.10/BSSN/11/2022,10002,Lembaga BBBB,IPKINDONESIA-CSIRT,Bima,Wakil Dekan Bidang Akademik Fakultas Teknologi Informasi,081212345678,abc@gmail.com,Anggota,Exercise B,Instansi B,2020,Sertifikasi B,BNSP,2020
+003,156/CSIRT.01.05/BSSN/04/2023,10003,Lembaga CCCC,Darmajaya-CSlRT,Bila,Direktur Sistem dan Teknologi Informasi,081212345678,abc@gmail.com,Ketua,Exercise A,Instansi C,2021,Sertifikasi A,BNSP,2021
+004,236/CSIRT.0105/BSSN/08/2023,10004,Lembaga DDDD,LLDIKTI2-CSIRT,Charles,Plt. Kasubdit Infrastruktur dan Keamanan DSSDI,081212345678,abc@gmail.com,Anggota,Exercise B,Instansi D,2022,Sertifikasi B,BNSP,2022
+005,146/CSIRT.01.05/BSSN/02/2023,10005,Lembaga EEEE,Poltek SSN-CSIRT,Doni,Kepala Seksi Pusat Data dan Keamanan DSSDI,081212345678,abc@gmail.com,Anggota,Exercise A,Instansi E,2023,Sertifikasi A,BNSP,2023
+006,130/CSIRT.01.05/BSSN/12/2022,10006,Lembaga FFFF,IKMI-CSIRT,Efraim,Direktur MBKM,081212345678,abc@gmail.com,Anggota,Exercise B,Instansi F,2024,Sertifikasi B,BNSP,2024
+007,168/CSIRT.01.05/BSSN/05/2023,10007,Lembaga GGGG,UBSI-CSIRT,Fani,Ka. UPT ICT Center,081212345678,abc@gmail.com,Ketua,Exercise A,Instansi G,2025,Sertifikasi A,BNSP,2025
+008,227/CSIRT.01.05/BSSN/08/2023,10008,Lembaga HHHH,UTI-TTIS,Fadlan,Kepala Bagian Data Siber Universitas Kristen Satya Wacana,081212345678,abc@gmail.com,Wakil Ketua,Exercise B,Instansi H,2026,Sertifikasi B,BNSP,2026

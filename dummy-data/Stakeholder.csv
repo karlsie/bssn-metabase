@@ -1,0 +1,9 @@
+Id_stakeholder,Nama_Stakeholder,Kategori Sektor,Nama_CSIRT,Provinsi,Kota/Kabupaten,Alamat,Latitude (opsional untuk kebutuhan maps),Longitude (opsional untuk kebutuhan maps,Kontak,Email,No_Registrasi_CSIRT,Jumlah Personil,Tanggal Registrasi
+001,Lembaga AAAA,BUMN,CSIRT BPJS Kesehatan,Jawa Barat,Bandung,Alamat 1,-6.917464,107.619123,-,none@mail.com,083/CSIRT.01.10/BSSN/07/2022,0,7/1/2022
+002,Lembaga BBBB,NGO,IPKINDONESIA-CSIRT,DKI Jakarta,Jakarta Selatan,Alamat 2,-6261493,106.810600,08112651261,csirt@ipkindonesia.or.id,123/CSIRT.01.10/BSSN/11/2022,58,11/1/2022
+003,Lembaga CCCC,Pendidikan,Darmajaya-CSlRT,DKI Jakarta,Jakarta Selatan,Alamat 3,-6261493,106.810601,(0721) 787214,csirt@darmajaya.ac.id,156/CSIRT.01.05/BSSN/04/2023,4,4/2/2023
+004,Lembaga DDDD,Pendidikan,LLDIKTI2-CSIRT,Jawa Tengah,Semarang,Alamat 4,-6.966667,110.416667,-,none@mail.com,236/CSIRT.0105/BSSN/08/2023,6,8/4/2023
+005,Lembaga EEEE,Pendidikan,Poltek SSN-CSIRT,Jawa Timur,Surabaya,Alamat 5,-7.257472,112.752088,(0251) 8541754,csirt@poltekssn.ac.id,146/CSIRT.01.05/BSSN/02/2023,7,2/1/2023
+006,Lembaga FFFF,Pendidikan,IKMI-CSIRT,DKI Jakarta,Jakarta Selatan,Alamat 6,-6.261493,106.810600,(0231) 490480,csirt.ikmi@gmail.com,130/CSIRT.01.05/BSSN/12/2022,7,12/2/2022
+007,Lembaga GGGG,Pendidikan,UBSI-CSIRT,Jawa Barat,Bandung,Alamat 7,-6.917464,107.619123,(021) 231170 ext. 840,csirt@bsi.ac.id,168/CSIRT.01.05/BSSN/05/2023,7,5/1/2023
+008,Lembaga HHHH,Pendidikan,UTI-TTIS,Jawa Barat,Bandung,Alamat 8,-6.917465,107.619123,-,none@mail.com,227/CSIRT.01.05/BSSN/08/2023,0,8/2/2023
