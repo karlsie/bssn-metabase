@@ -4,10 +4,10 @@ from airflow.operators.python import PythonOperator
 from datetime import datetime
 
 # PARAMETERIZED
-SOURCE_CONN_ID = "bssn-sources"
+SOURCE_CONN_ID = "bssn-dwh"
 TARGET_CONN_ID = "bssn-dwh"
 SOURCE_TABLE = "aset_tik"
-TARGET_TABLE = "aset_tik"
+TARGET_TABLE = "aset_tik_dt"
 
 
 def transfer_postgres_to_postgres(
