@@ -4,17 +4,26 @@ from psycopg2 import sql
 from airflow.providers.postgres.hooks.postgres import PostgresHook
 
 
-def transfer_postgres_to_postgres(**context):
+def transfer_postgres_to_postgres(
+    source_conn_id=None,
+    target_conn_id=None,
+    source_table=None,
+    target_table=None,
+    load_type=None,
+    date_column=None,
+    from_date=None,
+    **context
+):
     conf = context["dag_run"].conf or {}
 
-    source_conn_id = conf.get("source_conn_id", context["params"]["source_conn_id"])
-    target_conn_id = conf.get("target_conn_id", context["params"]["target_conn_id"])
-    source_table = conf.get("source_table", context["params"]["source_table"])
-    target_table = conf.get("target_table", context["params"]["target_table"])
+    source_conn_id = source_conn_id or conf.get("source_conn_id", context["params"]["source_conn_id"])
+    target_conn_id = target_conn_id or conf.get("target_conn_id", context["params"]["target_conn_id"])
+    source_table = source_table or conf.get("source_table", context["params"]["source_table"])
+    target_table = target_table or conf.get("target_table", context["params"]["target_table"])
 
-    load_type = conf.get("load_type", context["params"].get("load_type", "overwrite")).lower()
-    date_column = conf.get("date_column", context["params"].get("date_column"))
-    from_date = conf.get("from_date", context["params"].get("from_date"))
+    load_type = load_type or conf.get("load_type", context["params"].get("load_type", "overwrite")).lower()
+    date_column = date_column or conf.get("date_column", context["params"].get("date_column"))
+    from_date = from_date or conf.get("from_date", context["params"].get("from_date"))
 
     if load_type not in ["overwrite", "append"]:
         raise ValueError("load_type must be either 'overwrite' or 'append'")
@@ -43,7 +52,7 @@ def transfer_postgres_to_postgres(**context):
 
             # Recreate table from source
             target_cursor.execute(
-                sql.SQL("CREATE TABLE {} AS SELECT * FROM {}").format(
+                sql.SQL("CREATE TABLE {} AS SELECT * FROM {};").format(
                     sql.SQL(target_table),
                     sql.SQL(source_table),
                 )
@@ -92,11 +101,22 @@ def transfer_postgres_to_postgres(**context):
 
 
 # fetch data from api without pagination
-def load_api_to_postgres(**context):
+def load_api_to_postgres(api_url=None, target_conn_id=None, target_table=None, **context):
+    """Fetch data from an API and load into PostgreSQL.
+
+    Arguments may be provided via op_kwargs, dag params, or dag_run.conf.
+    """
+
     conf = context["dag_run"].conf or {}
-    api_url = conf.get("api_url", context["params"]["api_url"])
-    target_conn_id = conf.get("target_conn_id", context["params"]["target_conn_id"])
-    target_table = conf.get("target_table", context["params"]["target_table"])
+    api_url = api_url or conf.get("api_url", context["params"].get("api_url"))
+    target_conn_id = (
+        target_conn_id
+        or conf.get("target_conn_id", context["params"].get("target_conn_id"))
+    )
+    target_table = (
+        target_table
+        or conf.get("target_table", context["params"].get("target_table"))
+    )
 
     headers = {"Content-Type": "application/json"}
 

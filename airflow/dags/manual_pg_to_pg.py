@@ -5,7 +5,7 @@ from utils.airflow_utils import transfer_postgres_to_postgres
 
 
 with DAG(
-    dag_id="postgres_to_postgres_transfer",
+    dag_id="manual_pg_to_pg_transfer",
     start_date=datetime(2026, 3, 1),
     catchup=False,
     tags=["postgres", "etl"],
@@ -19,7 +19,7 @@ with DAG(
         "from_date": "2026-03-01",
     },
 ) as dag:
-
+    
     transfer_task = PythonOperator(
         task_id="transfer_data",
         python_callable=transfer_postgres_to_postgres,
