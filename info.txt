@@ -27,7 +27,7 @@ host : 10.201.120.148
 port : 5432
 user : airflow
 db : airflow-db
-pass : afokebgt!!
+pass : afokebgt
 
 # VM
 

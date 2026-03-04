@@ -1,16 +1,29 @@
 import requests
 import pandas as pd
+from psycopg2 import sql
 from airflow.providers.postgres.hooks.postgres import PostgresHook
 
 
 def transfer_postgres_to_postgres(**context):
-    # Runtime parameters (from manual trigger)
     conf = context["dag_run"].conf or {}
 
     source_conn_id = conf.get("source_conn_id", context["params"]["source_conn_id"])
     target_conn_id = conf.get("target_conn_id", context["params"]["target_conn_id"])
     source_table = conf.get("source_table", context["params"]["source_table"])
     target_table = conf.get("target_table", context["params"]["target_table"])
+
+    load_type = conf.get("load_type", context["params"].get("load_type", "overwrite")).lower()
+    date_column = conf.get("date_column", context["params"].get("date_column"))
+    from_date = conf.get("from_date", context["params"].get("from_date"))
+
+    if load_type not in ["overwrite", "append"]:
+        raise ValueError("load_type must be either 'overwrite' or 'append'")
+
+    if load_type == "append":
+        if not date_column:
+            raise ValueError("date_column is required when load_type='append'")
+        if not from_date:
+            raise ValueError("from_date is required when load_type='append'")
 
     source_hook = PostgresHook(postgres_conn_id=source_conn_id)
     target_hook = PostgresHook(postgres_conn_id=target_conn_id)
@@ -22,16 +35,53 @@ def transfer_postgres_to_postgres(**context):
     target_cursor = target_conn.cursor()
 
     try:
-        source_cursor.execute(f"SELECT * FROM {source_table}")
-        rows = source_cursor.fetchall()
+        if load_type == "overwrite":
+            # Drop table if exists
+            target_cursor.execute(
+                sql.SQL("DROP TABLE IF EXISTS {}").format(sql.SQL(target_table))
+            )
 
-        if rows:
-            insert_query = f"""
-                INSERT INTO {target_table}
+            # Recreate table from source
+            target_cursor.execute(
+                sql.SQL("CREATE TABLE {} AS SELECT * FROM {}").format(
+                    sql.SQL(target_table),
+                    sql.SQL(source_table),
+                )
+            )
+
+            target_conn.commit()
+
+        else:
+            # Validate date column exists in source
+            source_cursor.execute(
+                """
+                SELECT 1
+                FROM information_schema.columns
+                WHERE table_name = %s
+                AND column_name = %s
+                """,
+                (source_table.split(".")[-1], date_column),
+            )
+
+            if source_cursor.fetchone() is None:
+                raise ValueError(
+                    f"Column '{date_column}' does not exist in source table '{source_table}'"
+                )
+
+            insert_query = sql.SQL(
+                """
+                INSERT INTO {target}
                 SELECT *
-                FROM {source_table}
-            """
-            target_cursor.execute(insert_query)
+                FROM {source}
+                WHERE {date_col} >= %s
+                """
+            ).format(
+                target=sql.SQL(target_table),
+                source=sql.SQL(source_table),
+                date_col=sql.Identifier(date_column),
+            )
+
+            target_cursor.execute(insert_query, (from_date,))
             target_conn.commit()
 
     finally:
@@ -58,6 +108,7 @@ def load_api_to_postgres(**context):
     df = pd.json_normalize(rows)
 
     if df.empty:
+        print("No data to load")
         return
 
     schema, table = target_table.split(".")

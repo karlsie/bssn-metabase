@@ -1,19 +1,22 @@
 from airflow import DAG
-from airflow.operators.python import PythonOperator
+from airflow.providers.standard.operators.python import PythonOperator
 from datetime import datetime
 from utils.airflow_utils import transfer_postgres_to_postgres
 
 
 with DAG(
     dag_id="postgres_to_postgres_transfer",
-    start_date=datetime(2024, 1, 1),
+    start_date=datetime(2026, 3, 1),
     catchup=False,
     tags=["postgres", "etl"],
     params={  # Default values
         "source_conn_id": "bssn-dwh",
         "target_conn_id": "bssn-dwh",
-        "source_table": "aset_tik",
-        "target_table": "aset_tik_dt",
+        "source_table": "public.aset_tik",
+        "target_table": "public.aset_tik_dt",
+        "load_type": "append",  # or "overwrite"
+        "date_column": "created_at",
+        "from_date": "2026-03-01",
     },
 ) as dag:
 
@@ -21,5 +24,6 @@ with DAG(
         task_id="transfer_data",
         python_callable=transfer_postgres_to_postgres,
     )
+
 
     transfer_task

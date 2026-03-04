@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from airflow import DAG
-from airflow.operators.python import PythonOperator
+from airflow.providers.standard.operators.python import PythonOperator
 from utils.airflow_utils import load_api_to_postgres
 
 
@@ -17,14 +17,14 @@ with DAG(
     dag_id="rest_api_to_postgres",
     default_args=DEFAULT_ARGS,
     description="Extract REST API data and load into PostgreSQL",
-    start_date=datetime(2025, 1, 1),
+    start_date=datetime(2026, 3, 1),
     catchup=False,
     max_active_runs=1,
     tags=["api", "postgres", "etl"],
     params={
-        "api_url": "http://dummy-api-server:8000/orders",
-        "target_conn_id": "postgres_default",
-        "target_table": "public.api_data",
+        "api_url": "http://dummy-api-server:8000/nilai_csm",
+        "target_conn_id": "bssn-dwh",
+        "target_table": "public.nilai_csm",
     }
 ) as dag:
 
