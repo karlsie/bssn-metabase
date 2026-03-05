@@ -22,22 +22,6 @@ sudo -u metabase wget -O /home/metabase/metabase.jar https://downloads.metabase.
 
 Environment variables let you configure and customize your Metabase instance.
 
-```bash
-sudo -u metabase cat << EOF > /home/metabase/.env
-MB_JETTY_HOST=127.0.0.1
-MB_JETTY_PORT=3000
-
-# Uncomment and update the variables below to connect to your Postgres application database
-# If not set, Metabase will use a built-in database (not suitable for production)
-MB_DB_TYPE=postgres
-MB_DB_HOST=10.201.120.148
-MB_DB_PORT=5432
-MB_DB_DBNAME=metabase
-MB_DB_USER=metabase
-MB_DB_PASS=metabaseokebgt!!
-EOF
-```
-
 ## Create Metabase service
 
 Every service needs a configuration file that tells systemd how to manage it and what capabilities it supports. 

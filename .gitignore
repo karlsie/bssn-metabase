@@ -14,7 +14,7 @@ Thumbs.db
 *.swo
 
 # Environment Variables & Secrets
-.env
+*.env
 .env.local
 .env.*.local
 info.txt
@@ -45,3 +45,4 @@ node_modules/
 **/dist/
 **/build/
 **/target/
+**/*.txt
