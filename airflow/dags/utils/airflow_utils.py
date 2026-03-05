@@ -68,7 +68,7 @@ def transfer_postgres_to_postgres(
 
 
 # fetch data from api without pagination
-def load_api_to_postgres(api_url=None, target_conn_id=None, target_table=None, **context):
+def load_api_to_postgres(api_url=None, target_conn_id=None, target_table=None, load_type="append",**context):
     """Fetch data from an API and load into PostgreSQL.
 
     Arguments may be provided via op_kwargs, dag params, or dag_run.conf.
@@ -104,12 +104,23 @@ def load_api_to_postgres(api_url=None, target_conn_id=None, target_table=None, *
     hook = PostgresHook(postgres_conn_id=target_conn_id)
     engine = hook.get_sqlalchemy_engine()
 
-    df.to_sql(
-        name=table,
-        con=engine,
-        schema=schema,
-        if_exists="append",  # creates if not exists, appends otherwise
-        index=False,
-        method="multi",
-        chunksize=1000,
-    )
+    if load_type == "overwrite":
+        df.to_sql(
+            name=table,
+            con=engine,
+            schema=schema,
+            if_exists="replace",  # drops and recreates table
+            index=False,
+            method="multi",
+            chunksize=1000,
+        )
+    else:
+        df.to_sql(
+            name=table,
+            con=engine,
+            schema=schema,
+            if_exists="append",  # creates if not exists, appends otherwise
+            index=False,
+            method="multi",
+            chunksize=1000,
+        )

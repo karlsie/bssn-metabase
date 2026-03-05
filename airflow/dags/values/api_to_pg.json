@@ -2,5 +2,10 @@
     {
         "api_url": "http://dummy-api-server:8000/nilai_csm",
         "target_table": "public.nilai_csm"
+    },
+    {
+        "api_url": "http://dummy-api-server:8000/stakeholder",
+        "target_table": "public.stakeholder",
+        "load_type": "overwrite"
     }
 ]
