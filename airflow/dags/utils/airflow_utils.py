@@ -1,6 +1,6 @@
 import requests
 import pandas as pd
-from psycopg2 import sql
+from sqlalchemy import create_engine, inspect
 from airflow.providers.postgres.hooks.postgres import PostgresHook
 
 
@@ -20,84 +20,47 @@ def transfer_postgres_to_postgres(
     target_conn_id = target_conn_id or conf.get("target_conn_id", context["params"]["target_conn_id"])
     source_table = source_table or conf.get("source_table", context["params"]["source_table"])
     target_table = target_table or conf.get("target_table", context["params"]["target_table"])
-
-    load_type = load_type or conf.get("load_type", context["params"].get("load_type", "overwrite")).lower()
+    load_type = (load_type or conf.get("load_type", context["params"].get("load_type", "overwrite"))).lower()
     date_column = date_column or conf.get("date_column", context["params"].get("date_column"))
     from_date = from_date or conf.get("from_date", context["params"].get("from_date"))
 
     if load_type not in ["overwrite", "append"]:
-        raise ValueError("load_type must be either 'overwrite' or 'append'")
+        raise ValueError("load_type must be 'overwrite' or 'append'")
+    if load_type == "append" and (not date_column or not from_date):
+        raise ValueError("date_column and from_date are required when load_type='append'")
 
-    if load_type == "append":
-        if not date_column:
-            raise ValueError("date_column is required when load_type='append'")
-        if not from_date:
-            raise ValueError("from_date is required when load_type='append'")
-
+    # Get SQLAlchemy engines
     source_hook = PostgresHook(postgres_conn_id=source_conn_id)
     target_hook = PostgresHook(postgres_conn_id=target_conn_id)
+    source_engine = source_hook.get_sqlalchemy_engine()
+    target_engine = target_hook.get_sqlalchemy_engine()
 
-    source_conn = source_hook.get_conn()
-    target_conn = target_hook.get_conn()
+    # Build source query
+    if load_type == "append":
+        source_query = f"SELECT * FROM {source_table} WHERE {date_column} >= '{from_date}'"
+    else:
+        source_query = f"SELECT * FROM {source_table}"
 
-    source_cursor = source_conn.cursor()
-    target_cursor = target_conn.cursor()
+    # Read data into DataFrame
+    df = pd.read_sql(source_query, source_engine)
+    if df.empty:
+        print("No data to transfer.")
+        return
 
-    try:
-        if load_type == "overwrite":
-            # Drop table if exists
-            target_cursor.execute(
-                sql.SQL("DROP TABLE IF EXISTS {}").format(sql.SQL(target_table))
-            )
+    # Check if target table exists
+    inspector = inspect(target_engine)
+    table_exists = target_table in inspector.get_table_names()
 
-            # Recreate table from source
-            target_cursor.execute(
-                sql.SQL("CREATE TABLE {} AS SELECT * FROM {};").format(
-                    sql.SQL(target_table),
-                    sql.SQL(source_table),
-                )
-            )
+    target_schema, target_table_name = target_table.split(".")
 
-            target_conn.commit()
-
-        else:
-            # Validate date column exists in source
-            source_cursor.execute(
-                """
-                SELECT 1
-                FROM information_schema.columns
-                WHERE table_name = %s
-                AND column_name = %s
-                """,
-                (source_table.split(".")[-1], date_column),
-            )
-
-            if source_cursor.fetchone() is None:
-                raise ValueError(
-                    f"Column '{date_column}' does not exist in source table '{source_table}'"
-                )
-
-            insert_query = sql.SQL(
-                """
-                INSERT INTO {target}
-                SELECT *
-                FROM {source}
-                WHERE {date_col} >= %s
-                """
-            ).format(
-                target=sql.SQL(target_table),
-                source=sql.SQL(source_table),
-                date_col=sql.Identifier(date_column),
-            )
-
-            target_cursor.execute(insert_query, (from_date,))
-            target_conn.commit()
-
-    finally:
-        source_cursor.close()
-        target_cursor.close()
-        source_conn.close()
-        target_conn.close()
+    if not table_exists:
+        # If table doesn't exist, create it
+        df.to_sql(target_table_name, target_engine, schema=target_schema, index=False, if_exists='fail')
+        print(f"Created target table {target_table} and inserted {len(df)} rows.")
+    else:
+        # If table exists, append
+        df.to_sql(target_table_name, target_engine, schema=target_schema, index=False, if_exists='append')
+        print(f"Appended {len(df)} rows to existing table {target_table}.")
 
 
 # fetch data from api without pagination

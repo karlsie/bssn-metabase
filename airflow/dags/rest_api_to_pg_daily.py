@@ -38,7 +38,7 @@ with DAG(
             op_kwargs={
                 "api_url": pair["api_url"],
                 # connection id can still be overridden at runtime via conf
-                "target_conn_id": "bssn-dwh",
+                "target_conn_id": "pg-bssn-dwh",
                 "target_table": pair["target_table"],
             },
         )

@@ -10,10 +10,10 @@ with DAG(
     catchup=False,
     tags=["manual","postgres", "etl"],
     params={  # Default values
-        "source_conn_id": "bssn-dwh",
-        "target_conn_id": "bssn-dwh",
+        "source_conn_id": "pg-bssn-sources",
+        "target_conn_id": "pg-bssn-dwh",
         "source_table": "public.aset_tik",
-        "target_table": "public.aset_tik_dt",
+        "target_table": "public.aset_tik",
         "load_type": "append",  # or "overwrite"
         "date_column": "created_at",
         "from_date": "2026-03-01",

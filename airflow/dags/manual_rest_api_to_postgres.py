@@ -14,7 +14,7 @@ with DAG(
     tags=["manual","api", "postgres", "etl"],
     params={
         "api_url": "http://dummy-api-server:8000/nilai_csm",
-        "target_conn_id": "bssn-dwh",
+        "target_conn_id": "pg-bssn-dwh",
         "target_table": "public.nilai_csm",
     }
 ) as dag:
