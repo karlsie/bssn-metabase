@@ -12,11 +12,15 @@
     {
         "src": "public.kinerja_keamanan_siber",
         "dst": "public.kinerja_keamanan_siber",
-        "load_type": "overwrite"
+        "load_type": "append",
+        "date_column": "created_at",
+        "from_date": "2026-03-01"
     },
     {
         "src": "public.nilai_indeks_kami",
         "dst": "public.nilai_indeks_kami",
-        "load_type": "overwrite"
+        "load_type": "append",
+        "date_column": "created_at",
+        "from_date": "2026-03-01"
     }
 ]
