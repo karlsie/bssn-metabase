@@ -1,0 +1,22 @@
+[
+    {
+        "src": "public.aset_tik",
+        "dst": "public.aset_tik",
+        "load_type": "overwrite"
+    },
+    {
+        "src": "public.aset_sistem",
+        "dst": "public.aset_sistem",
+        "load_type": "overwrite"
+    },
+    {
+        "src": "public.kinerja_keamanan_siber",
+        "dst": "public.kinerja_keamanan_siber",
+        "load_type": "overwrite"
+    },
+    {
+        "src": "public.nilai_indeks_kami",
+        "dst": "public.nilai_indeks_kami",
+        "load_type": "overwrite"
+    }
+]

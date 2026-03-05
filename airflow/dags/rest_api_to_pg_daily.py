@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
 from utils.airflow_utils import load_api_to_postgres
+import json
 
 
 DEFAULT_ARGS = {
@@ -24,11 +25,9 @@ with DAG(
     tags=["api", "postgres", "etl", "daily"],
 ) as dag:
 
-    # default list of api/target pairs; the number of tasks is fixed at parse time
-    api_targets = [
-        {"api_url": "http://dummy-api-server:8000/nilai_csm", "target_table": "public.nilai_csm"},
-        # add additional entries here as needed
-    ]
+    
+    with open("/opt/airflow/dags/values/api_to_pg.json") as f:
+        api_targets = json.load(f)
 
     # create a task for each configured pair
     for pair in api_targets:
