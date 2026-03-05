@@ -43,6 +43,9 @@ def transfer_postgres_to_postgres(
 
     # Read data into DataFrame
     df = pd.read_sql(source_query, source_engine)
+
+    # add column inserted_at current timestamp
+    df["inserted_at"] = pd.Timestamp.now()
     if df.empty:
         print("No data to transfer.")
         return
@@ -56,11 +59,11 @@ def transfer_postgres_to_postgres(
 
     if not table_exists:
         # If table doesn't exist, create it
-        df.to_sql(target_table_name, target_engine, schema=target_schema, index=False, if_exists='fail')
+        df.to_sql(target_table_name, target_engine, schema=target_schema, index=False, if_exists='fail', method='multi', chunksize=1000)
         print(f"Created target table {target_table} and inserted {len(df)} rows.")
     else:
         # If table exists, append
-        df.to_sql(target_table_name, target_engine, schema=target_schema, index=False, if_exists='append')
+        df.to_sql(target_table_name, target_engine, schema=target_schema, index=False, if_exists='append', method='multi', chunksize=1000)
         print(f"Appended {len(df)} rows to existing table {target_table}.")
 
 
@@ -90,6 +93,7 @@ def load_api_to_postgres(api_url=None, target_conn_id=None, target_table=None, *
     data = response.json()
     rows = data.get("results", [])
     df = pd.json_normalize(rows)
+    df["inserted_at"] = pd.Timestamp.now()
 
     if df.empty:
         print("No data to load")
