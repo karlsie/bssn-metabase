@@ -1,6 +1,6 @@
 import requests
 import pandas as pd
-from sqlalchemy import create_engine, inspect
+from sqlalchemy import inspect
 from airflow.providers.postgres.hooks.postgres import PostgresHook
 
 
@@ -14,6 +14,11 @@ def transfer_postgres_to_postgres(
     from_date=None,
     **context
 ):
+    """Fetch data from an postgreSQL database and load into another PostgreSQL database.
+
+    Arguments may be provided via op_kwargs, dag params, or dag_run.conf.
+    """
+
     conf = context["dag_run"].conf or {}
 
     source_conn_id = source_conn_id or conf.get("source_conn_id", context["params"]["source_conn_id"])
@@ -67,8 +72,13 @@ def transfer_postgres_to_postgres(
         print(f"Appended {len(df)} rows to existing table {target_table}.")
 
 
-# fetch data from api without pagination
-def load_api_to_postgres(api_url=None, target_conn_id=None, target_table=None, load_type="append",**context):
+def load_api_to_postgres(
+        api_url=None,
+        target_conn_id=None,
+        target_table=None,
+        load_type="append",
+        **context
+):
     """Fetch data from an API and load into PostgreSQL.
 
     Arguments may be provided via op_kwargs, dag params, or dag_run.conf.

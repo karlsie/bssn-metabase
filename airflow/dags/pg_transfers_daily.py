@@ -6,10 +6,10 @@ import json
 
 
 DEFAULT_ARGS = {
-    "owner": "data-eng",
+    "owner": "bssn-dwh",
     "depends_on_past": False,
     "email_on_failure": True,
-    "retries": 0,
+    "retries": 2,
     "retry_delay": timedelta(minutes=5),
 }
 

@@ -6,7 +6,7 @@ import json
 
 
 DEFAULT_ARGS = {
-    "owner": "data-eng",
+    "owner": "bssn-dwh",
     "depends_on_past": False,
     "email_on_failure": True,
     "retries": 2,
