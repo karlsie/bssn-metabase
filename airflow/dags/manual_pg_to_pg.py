@@ -3,11 +3,16 @@ from airflow.providers.standard.operators.python import PythonOperator
 from datetime import datetime
 from utils.airflow_utils import transfer_postgres_to_postgres
 
+DEFAULT_ARGS = {
+    "owner": "bssn-dwh",
+}
+
 
 with DAG(
     dag_id="manual_pg_to_pg_transfer",
     start_date=datetime(2026, 3, 1),
     catchup=False,
+    default_args=DEFAULT_ARGS,
     tags=["manual","postgres", "etl"],
     params={  # Default values
         "source_conn_id": "pg-bssn-sources",
