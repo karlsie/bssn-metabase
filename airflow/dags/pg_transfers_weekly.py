@@ -16,7 +16,7 @@ DEFAULT_ARGS = {
 with DAG(
     dag_id="pg_transfers_weekly",
     start_date=datetime(2026, 3, 1),
-    schedule="0 2 * * *",  # daily at 02:00 UTC
+    schedule="0 2 1 * 0",
     catchup=False,
     default_args=DEFAULT_ARGS,
     tags=["postgres", "etl", "weekly"],

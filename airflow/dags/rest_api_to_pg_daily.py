@@ -19,7 +19,7 @@ with DAG(
     default_args=DEFAULT_ARGS,
     description="Extract REST API data and load into PostgreSQL",
     start_date=datetime(2026, 3, 1),
-    schedule="0 2 * * *",  # daily at 02:00 UTC
+    schedule="0 2 * * *",
     catchup=False,
     max_active_runs=1,
     tags=["api", "postgres", "etl", "daily"],
