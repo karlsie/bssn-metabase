@@ -14,57 +14,73 @@ This Airflow instance manages automated data pipelines for:
 ```
 airflow/
 ├── config/
-│   └── airflow.cfg           # Airflow configuration file
+│   └── airflow.cfg                     # Airflow configuration file
 ├── dags/
-│   ├── pg_to_pg.py          # PostgreSQL to PostgreSQL transfer DAG
-│   ├── rest_api_to_postgres.py  # REST API to PostgreSQL ingestion DAG
+│   ├── manual_pg_to_pg.py              # manual trigger for pg-to-pg transfer
+│   ├── manual_rest_api_to_postgres.py  # manual API ingestion
+│   ├── rest_api_to_pg_daily.py         # daily REST API ingestion DAG
+│   ├── rest_api_to_pg_monthly.py       # monthly REST API ingestion DAG
+│   ├── pg_transfers_daily.py           # daily pg-to-pg transfer DAG
+│   ├── pg_transfers_weekly.py          # weekly pg-to-pg transfer DAG
+│   ├── values/                         # JSON parameter overrides for DAGs
+│   │   ├── api_to_pg_daily.json
+│   │   ├── api_to_pg_monthly.json
+│   │   ├── pg_to_pg_daily.json
+│   │   └── pg_to_pg_weekly.json
 │   └── utils/
 │       ├── __init__.py
-│       └── airflow_utils.py  # Shared utility functions
-├── logs/                      # DAG execution logs (auto-generated)
-├── plugins/                   # Custom plugins directory
-├── docker-compose.yaml        # Docker Compose configuration
-├── Dockerfile                 # Custom Airflow image (if needed)
-├── Makefile                   # Common commands
-├── requirements.txt           # Python dependencies
-└── README.md                  # This file
+│       └── airflow_utils.py            # Shared utility functions
+├── logs/                                # DAG execution logs (auto-generated)
+├── plugins/                             # Custom plugins directory
+├── docker-compose.yaml                  # Docker Compose configuration
+├── Dockerfile                           # Custom Airflow image (if needed)
+├── Makefile                             # Common commands
+├── requirements.txt                     # Python dependencies
+└── README.md                            # This file
 ```
 
 ## Available DAGs
 
-### 1. `postgres_to_postgres_transfer`
+### PostgreSQL‑to‑PostgreSQL Transfers
+A pair of parameterized DAGs perform data movement between Postgres tables.
 
-Transfers data between PostgreSQL tables with support for full and incremental loads.
+- **`pg_transfers_daily`** – runs every day at 02:00 UTC using definitions in `dags/values/pg_to_pg_daily.json`.
+- **`pg_transfers_weekly`** – weekly version, reads `dags/values/pg_to_pg_weekly.json`.
+- **`manual_pg_to_pg`** – manual trigger helper for ad‑hoc transfers.
 
-**Features:**
-- Full table overwrite mode
-- Incremental append mode (delta loads based on date column)
-- Configurable source/target connections and tables
-- Validates date columns for incremental loads
+All three call `transfer_postgres_to_postgres` in `airflow_utils.py` and support
+`overwrite` or `append` modes. See utility documentation below for full
+parameter list.
 
-**Parameters:**
-- `source_conn_id`: Source PostgreSQL connection ID (default: `bssn-dwh`)
-- `target_conn_id`: Target PostgreSQL connection ID (default: `bssn-dwh`)
-- `source_table`: Source table name (default: `public.aset_tik`)
-- `target_table`: Target table name (default: `public.aset_tik_dt`)
-- `load_type`: `overwrite` or `append` (default: `append`)
-- `date_column`: Column name for incremental filtering (required for append mode)
-- `from_date`: Start date for incremental load (required for append mode)
+### REST API Ingestion
+Three DAGs for loading JSON APIs into Postgres tables:
 
-### 2. `rest_api_to_postgres`
+- **`rest_api_to_pg_daily`** – pulls daily endpoints; parameters are in
+  `dags/values/api_to_pg_daily.json`.
+- **`rest_api_to_pg_monthly`** – monthly endpoints using
+  `dags/values/api_to_pg_monthly.json`.
+- **`manual_rest_api_to_postgres`** – manual runner for development or
+testing.
 
-Extracts data from REST APIs and loads into PostgreSQL.
+They leverage `load_api_to_postgres` from `airflow_utils.py`.
 
-**Features:**
-- Configurable API endpoints
-- Automatic retry logic (2 retries with 5-minute delays)
-- Failure notifications via email
-- Single active run (prevents concurrent executions)
+### Summary of Utility Parameters
+Both transfer helpers read arguments via `op_kwargs`, DAG params, or
+`dag_run.conf`.
 
-**Parameters:**
-- `api_url`: REST API endpoint (default: `http://dummy-api-server:8000/nilai_csm`)
-- `target_conn_id`: Target PostgreSQL connection ID (default: `bssn-dwh`)
-- `target_table`: Target table name (default: `public.nilai_csm`)
+#### `transfer_postgres_to_postgres`
+- `source_conn_id`, `target_conn_id` – connection IDs
+- `source_table`, `target_table` – schema-qualified table names
+- `load_type` – `'overwrite'` or `'append'` (append requires `date_column`
+  and `from_date`)
+- `date_column`/`from_date` – for incremental loads
+- `batch_size` – rows per insert chunk (default 10000)
+
+#### `load_api_to_postgres`
+- `api_url` – URL to query
+- `target_conn_id`, `target_table` – where to write results
+
+(See function docstrings in `dags/utils/airflow_utils.py` for more.)
 
 ## Setup
 
