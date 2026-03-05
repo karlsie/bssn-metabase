@@ -13,6 +13,7 @@ DEFAULT_ARGS = {
     "retry_delay": timedelta(minutes=5),
 }
 
+
 with DAG(
     dag_id="pg_transfers_weekly",
     start_date=datetime(2026, 3, 1),
@@ -22,7 +23,7 @@ with DAG(
     tags=["postgres", "etl", "weekly"],
 ) as dag:
 
-    with open("/opt/airflow/dags/values/weekly/pg_to_pg.json") as f:
+    with open("/opt/airflow/dags/values/pg_to_pg_weekly.json") as f:
         table_pairs = json.load(f)
 
     for pair in table_pairs:

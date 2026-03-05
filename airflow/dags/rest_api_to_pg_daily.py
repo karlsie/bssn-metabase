@@ -26,7 +26,7 @@ with DAG(
 ) as dag:
 
     
-    with open("/opt/airflow/dags/values/daily/api_to_pg.json") as f:
+    with open("/opt/airflow/dags/values/api_to_pg_daily.json") as f:
         api_targets = json.load(f)
 
     # create a task for each configured pair
