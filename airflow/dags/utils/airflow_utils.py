@@ -66,6 +66,10 @@ def transfer_postgres_to_postgres(
         # If table doesn't exist, create it
         df.to_sql(target_table_name, target_engine, schema=target_schema, index=False, if_exists='fail', method='multi', chunksize=1000)
         print(f"Created target table {target_table} and inserted {len(df)} rows.")
+    elif load_type == "overwrite":
+        # If table exists and load_type is overwrite, replace it
+        df.to_sql(target_table_name, target_engine, schema=target_schema, index=False, if_exists='replace', method='multi', chunksize=1000)
+        print(f"Overwrote existing table {target_table} with {len(df)} rows.")
     else:
         # If table exists, append
         df.to_sql(target_table_name, target_engine, schema=target_schema, index=False, if_exists='append', method='multi', chunksize=1000)

@@ -39,5 +39,6 @@ with DAG(
                 # connection id can still be overridden at runtime via conf
                 "target_conn_id": "pg-bssn-dwh",
                 "target_table": pair["target_table"],
+                "load_type": pair.get("load_type", "append"),
             },
         )
