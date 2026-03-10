@@ -8,7 +8,6 @@ from utils.airflow_utils import (
 )
 import json
 
-
 DEFAULT_ARGS = {
     "owner": "bssn-dwh",
     "depends_on_past": False,
@@ -45,7 +44,7 @@ with DAG(
                     "date_column": pair.get("date_column"),
                     # "from_date": "{{ macros.ds_add(ds, -1) }}",
                     "from_date": "2026-01-01",
-                    "keys": pair.get("keys")
+                    "keys": pair.get("keys"),
                 },
             )
         elif pair.get("function") == "dwh_to_dwh":
@@ -57,7 +56,7 @@ with DAG(
                     "query_path": pair["query_path"],
                     "target_table": pair["dst"],
                     "load_type": pair["load_type"],
-                    "keys": pair.get("keys")
+                    "keys": pair.get("keys"),
                 },
             )
         elif pair.get("function") == "rest_api_to_postgres":
@@ -70,24 +69,24 @@ with DAG(
                     "target_conn_id": "pg-bssn-dwh",
                     "target_table": pair["dst"],
                     "load_type": pair["load_type"],
-                    "keys": pair.get("keys")
+                    "keys": pair.get("keys"),
                 },
             )
         tasks[pair["dst"]] = task
 
     # Set dependencies from config
     for pair in table_pairs:
-        if 'depends_on' in pair:
-            depends_on = pair['depends_on']
-            
+        if "depends_on" in pair:
+            depends_on = pair["depends_on"]
+
             # Handle both single string and list of strings
             if isinstance(depends_on, str):
                 depends_on = [depends_on]
-            
+
             # Get current task
             current_task_key = pair["dst"]
             current_task = tasks.get(current_task_key)
-            
+
             # Set all upstream tasks
             if current_task:
                 for dep in depends_on:
