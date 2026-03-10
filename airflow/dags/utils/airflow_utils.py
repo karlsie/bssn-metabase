@@ -44,7 +44,6 @@ def _perform_upsert(df, engine, schema, table_name, keys, batch_size=1000):
                 # Extract unique key combinations and delete
                 for _, row in batch_df.iterrows():
                     key_values = tuple(row[key] for key in keys)
-                    print(key_values)
                     try:
                         cursor.execute(delete_query, key_values)
                     except psycopg2.Error as e:
@@ -59,7 +58,6 @@ def _perform_upsert(df, engine, schema, table_name, keys, batch_size=1000):
                 
                 # Prepare data for insertion
                 insert_data = [tuple(row[col] for col in columns) for _, row in batch_df.iterrows()]
-                print(insert_data)
                 
                 try:
                     cursor.executemany(insert_query, insert_data)
@@ -121,8 +119,9 @@ def transfer_postgres_to_postgres(
 
     # Read data into DataFrame
     df = pd.read_sql(source_query, source_engine)
-
+    df.columns = df.columns.str.lower().str.replace(r'[^a-zA-Z0-9_]', '_', regex=True)
     df["updated_at"] = pd.Timestamp.now()
+
     if df.empty:
         print("No data to transfer.")
         return
@@ -187,7 +186,7 @@ def load_api_to_postgres(
     data = response.json()
     rows = data.get("results", [])
     df = pd.json_normalize(rows)
-    df.columns = df.columns.str.lower().str.replace(" ", "_")
+    df.columns = df.columns.str.lower().str.replace(r'[^a-zA-Z0-9_]', '_', regex=True)
     df["updated_at"] = pd.Timestamp.now()
 
     if df.empty:
@@ -206,6 +205,7 @@ def load_api_to_postgres(
     if not table_exists:
         # If table doesn't exist, create it
         df.to_sql(table, engine, schema=schema, index=False, if_exists='fail', method='multi', chunksize=1000)
+        print(f"Created target table {target_table} and inserted {len(df)} rows.")
     else:
         if load_type == "overwrite":
             df.to_sql(table, engine, schema=schema, index=False, if_exists='replace', method='multi', chunksize=1000)
@@ -248,6 +248,7 @@ def query_dwh_to_dwh(
     with open(f"/opt/airflow/dags/sql/{query_path}") as sql_file:
         query = sql_file.read()
     df = pd.read_sql(query, engine)
+    df.columns = df.columns.str.lower().str.replace(r'[^a-zA-Z0-9_]', '_', regex=True)
     df["updated_at"] = pd.Timestamp.now()
 
     if df.empty:
@@ -263,6 +264,7 @@ def query_dwh_to_dwh(
     if not table_exists:
         # If table doesn't exist, create it
         df.to_sql(table, engine, schema=schema, index=False, if_exists='fail', method='multi', chunksize=1000)
+        print(f"Created target table {target_table} and inserted {len(df)} rows.")
     else:
         if load_type == "overwrite":
             df.to_sql(table, engine, schema=schema, index=False, if_exists='replace', method='multi', chunksize=1000)
