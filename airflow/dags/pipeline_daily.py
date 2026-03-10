@@ -43,7 +43,8 @@ with DAG(
                     "target_table": pair["dst"],
                     "load_type": pair["load_type"],
                     "date_column": pair.get("date_column"),
-                    "from_date": "{{ macros.ds_add(ds, -1) }}",
+                    # "from_date": "{{ macros.ds_add(ds, -1) }}",
+                    "from_date": "2026-01-01",
                     "keys": pair.get("keys")
                 },
             )

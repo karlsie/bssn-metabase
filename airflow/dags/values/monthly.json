@@ -3,6 +3,7 @@
         "function": "rest_api_to_postgres",
         "api_url": "http://dummy-api-server:8000/stakeholder",
         "dst": "public.stakeholder",
-        "load_type": "overwrite"
+        "load_type": "upsert",
+        "keys": ["id_stakeholder"]
     }
 ]

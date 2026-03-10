@@ -3,12 +3,14 @@
         "function": "transfer_postgres_to_postgres",
         "src": "public.aset_tik",
         "dst": "public.aset_tik",
-        "load_type": "overwrite"
+        "load_type": "upsert",
+        "keys": ["id_stakeholder"]
     },
     {
         "function": "transfer_postgres_to_postgres",
         "src": "public.aset_sistem",
         "dst": "public.aset_sistem",
-        "load_type": "overwrite"
+        "load_type": "upsert",
+        "keys": ["id_stakeholder"]
     }
 ]

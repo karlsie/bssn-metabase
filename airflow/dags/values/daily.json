@@ -22,7 +22,8 @@
         "depends_on": [
             "public.kinerja_keamanan_siber"
         ],
-        "load_type": "overwrite"
+        "load_type": "upsert",
+        "keys": ["id_stakeholder"]
     },
     {
         "function": "rest_api_to_postgres",
