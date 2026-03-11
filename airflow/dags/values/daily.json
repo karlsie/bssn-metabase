@@ -4,16 +4,14 @@
         "src": "public.kinerja_keamanan_siber",
         "dst": "public.kinerja_keamanan_siber",
         "load_type": "upsert",
-        "keys": ["id_stakeholder"],
-        "date_column": "created_at"
+        "keys": ["id_stakeholder"]
     },
     {
         "function": "transfer_postgres_to_postgres",
         "src": "public.nilai_indeks_kami",
         "dst": "public.nilai_indeks_kami",
         "load_type": "upsert",
-        "keys": ["id_stakeholder"],
-        "date_column": "created_at"
+        "keys": ["id_stakeholder"]
     },
     {
         "function": "dwh_to_dwh",
