@@ -1,5 +1,5 @@
-apache-airflow-providers-postgres==6.6.0
-psycopg2-binary==2.9.11
-requests==2.32.5
-pandas==3.0.1
-sqlalchemy==2.0.48
+apache-airflow-providers-postgres
+psycopg2-binary
+requests
+pandas
+sqlalchemy
