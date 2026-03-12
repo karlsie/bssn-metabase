@@ -1,9 +1,0 @@
-[
-    {
-        "function": "rest_api_to_postgres",
-        "api_url": "http://dummy-api-server:8000/stakeholder",
-        "dst": "public.stakeholder_dst",
-        "load_type": "upsert",
-        "keys": ["id_stakeholder"]
-    }
-]

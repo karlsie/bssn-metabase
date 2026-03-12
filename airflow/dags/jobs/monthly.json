@@ -1,0 +1,24 @@
+{
+    "dag_id": "pipeline_monthly",
+    "default_args": {
+        "owner": "bssn-dwh",
+        "depends_on_past": "False",
+        "email_on_failure": "True",
+        "retries": 2,
+        "retry_delay": "5",
+        "start_date": "2026-03-01",
+        "schedule": "0 2 1 * *",
+        "catchup": "False",
+        "tags": ["postgres", "etl", "monthly"]
+    },
+    "jobs": [
+        {
+            "function": "rest_api_to_pg",
+            "target_conn_id": "pg-bssn-dwh",
+            "api_url": "http://dummy-api-server:8000/stakeholder",
+            "dst": "public.stakeholder_dst",
+            "load_type": "upsert",
+            "keys": ["id_stakeholder"]
+        }
+    ]
+}

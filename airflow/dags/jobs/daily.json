@@ -1,0 +1,53 @@
+{
+    "dag_id": "pipeline_daily",
+    "default_args": {
+        "owner": "bssn-dwh",
+        "depends_on_past": "False",
+        "email_on_failure": "True",
+        "retries": 2,
+        "retry_delay": "5",
+        "start_date": "2026-03-01",
+        "schedule": "0 2 * * *",
+        "catchup": "False",
+        "tags": ["postgres", "etl", "daily"]
+    },
+    "jobs": [
+        {
+            "function": "pg_to_pg",
+            "source_conn_id": "pg-bssn-sources",
+            "target_conn_id": "pg-bssn-dwh",
+            "src": "public.kinerja_keamanan_siber",
+            "dst": "public.kinerja_keamanan_siber_dst",
+            "load_type": "upsert",
+            "keys": ["id_stakeholder"]
+        },
+        {
+            "function": "pg_to_pg",
+            "source_conn_id": "pg-bssn-sources",
+            "target_conn_id": "pg-bssn-dwh",
+            "src": "public.nilai_indeks_kami",
+            "dst": "public.nilai_indeks_kami_dst",
+            "load_type": "upsert",
+            "keys": ["id_stakeholder"]
+        },
+        {
+            "function": "dwh_to_dwh",
+            "query_path": "joined_data.sql",
+            "target_conn_id": "pg-bssn-dwh",
+            "dst": "public.joined_data_dst",
+            "depends_on": [
+                "public.kinerja_keamanan_siber_dst"
+            ],
+            "load_type": "upsert",
+            "keys": ["id_stakeholder"]
+        },
+        {
+            "function": "rest_api_to_pg",
+            "api_url": "http://dummy-api-server:8000/nilai_csm",
+            "target_conn_id": "pg-bssn-dwh",
+            "dst": "public.nilai_csm_dst",
+            "load_type": "upsert",
+            "keys": ["id_stakeholder"]
+        }
+    ]
+}

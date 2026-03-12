@@ -1,0 +1,35 @@
+{
+    "dag_id": "pipeline_weekly",
+    "default_args": {
+        "owner": "bssn-dwh",
+        "depends_on_past": "False",
+        "email_on_failure": "True",
+        "retries": 2,
+        "retry_delay": "5",
+        "start_date": "2026-03-01",
+        "schedule": "0 2 1 * 0",
+        "catchup": "False",
+        "tags": ["postgres", "etl", "weekly"]
+    },
+    "jobs": [
+        {
+            "function": "pg_to_pg",
+            "source_conn_id": "pg-bssn-sources",
+            "target_conn_id": "pg-bssn-dwh",
+            "src": "public.aset_tik",
+            "dst": "public.aset_tik_dst",
+            "load_type": "upsert",
+            "keys": ["id_stakeholder"]
+        },
+        {
+            "function": "pg_to_pg",
+            "source_conn_id": "pg-bssn-sources",
+            "target_conn_id": "pg-bssn-dwh",
+            "src": "public.aset_sistem",
+            "dst": "public.aset_sistem_dst",
+            "load_type": "upsert",
+            "keys": ["id_stakeholder"]
+        }
+    ]
+}
+
