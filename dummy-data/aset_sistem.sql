@@ -14,7 +14,7 @@ CREATE TABLE aset_sistem (
 
 -- convert above values to INSERT statements for PostgreSQL, add created_at with random timestamps within first 3 months in 2026 
 
-INSERT INTO aset_sistem (Id_stakeholder, No_Registrasi_CSIRT, Nama_Stakeholder, Id_Sistem, Nama, Jenis_Se, Sektor_IIV, Kategori_SE, created_at) VALUES
+INSERT INTO aset_sistem (id_stakeholder, No_Registrasi_CSIRT, Nama_Stakeholder, Id_Sistem, Nama, Jenis_Se, Sektor_IIV, Kategori_SE, created_at) VALUES
 ('001', '083/CSIRT.01.10/BSSN/07/2022', 'Lembaga AAAA', 'A001', 'Sistem A', 'Publik', 'Ya', 'Strategis', '2026-01-15 10:30:00'),
 ('002', '123/CSIRT.01.10/BSSN/11/2022', 'Lembaga BBBB', 'B001', 'Sistem B', 'Privat', 'Tidak', 'Tinggi', '2026-02-20 14:45:00'),
 ('003', '156/CSIRT.01.05/BSSN/04/2023', 'Lembaga CCCC', 'C001', 'Sistem C', 'Publik', 'Ya', 'Rendah', '2026-03-10 09:15:00'),
