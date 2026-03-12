@@ -90,6 +90,8 @@ DAGs support three types of tasks:
     "dag_id": "pipeline_daily",
     "default_args": {
         "owner": "bssn-dwh",
+        "depends_on_past": false,
+        "email_on_failure": true,
         "retries": 2,
         "retry_delay": 5,
         "start_date": "2026-03-01",
@@ -99,12 +101,14 @@ DAGs support three types of tasks:
     },
     "jobs": [
         {
-            "function": "transfer_postgres_to_postgres",
-            "src": "public.source_table",
-            "dst": "public.target_table",
-            "load_type": "upsert",
-            "keys": ["id"]
-        }
+          "function": "pg_to_pg",
+          "source_conn_id": "pg-bssn-sources",
+          "target_conn_id": "pg-bssn-dwh",
+          "src": "public.kinerja_keamanan_siber",
+          "dst": "public.kinerja_keamanan_siber_dst",
+          "load_type": "upsert",
+          "keys": ["id_stakeholder"]
+        },
     ]
 }
 ```
@@ -186,7 +190,7 @@ Contains task execution functions:
 
 - **`transfer_postgres_to_postgres(**context)`**
   - Transfers data between PostgreSQL tables
-  - Supports `upsert` (delete + insert on key match), `overwrite`, and `append` modes
+  - Supports `upsert` (delete + insert on key match) and `overwrite` modes
   - Validates schema and date columns
   - Parameters: `source_conn_id`, `target_conn_id`, `source_table`, `target_table`, `load_type`, `keys`, `date_column`, `from_date`
 
@@ -260,7 +264,9 @@ To add a task to `pipeline_daily`, edit `dags/jobs/daily.json`:
 "jobs": [
     { ... existing jobs ... },
     {
-        "function": "transfer_postgres_to_postgres",
+        "function": "pg_to_pg",
+        "source_conn_id": "pg-bssn-sources",
+        "target_conn_id": "pg-bssn-dwh",
         "src": "public.new_source",
         "dst": "public.new_target",
         "load_type": "upsert",
