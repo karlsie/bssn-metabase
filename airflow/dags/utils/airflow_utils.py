@@ -1,7 +1,11 @@
 from airflow.providers.postgres.hooks.postgres import PostgresHook
 from utils.db_utils import read_postgredb, write_postgredb
 from utils.api_utils import fetch_api_data
-from utils.drive_utils import download_file_from_only_office, read_file_from_only_office
+from utils.drive_utils import (
+    download_file_from_only_office,
+    read_file_from_only_office,
+    list_files_in_only_office,
+)
 
 
 def transfer_postgres_to_postgres(
@@ -136,6 +140,16 @@ def query_dwh_to_dwh(
     write_postgredb(df, engine, target_table, load_type=load_type, keys=keys)
 
 
-def load_only_office_file_to_postgres():
-    #TODO: Code to load file from OnlyOffice to PostgreSQL
-    pass
+def load_only_office_file_to_postgres(conn_username, conn_password, drive_url, target_conn_id, target_table, load_type="overwrite", keys=None, **context):
+    files = list_files_in_only_office(conn_username, conn_password)
+    if not files:
+        print("No files found in OnlyOffice.")
+        return
+
+    for file in files:
+        print(f"Processing file: {file}")
+        download_file_from_only_office(file, drive_url, conn_username, conn_password)
+    
+        content = read_file_from_only_office(f"/tmp/{file}")
+
+        write_postgredb(content, target_conn_id, target_table, load_type=load_type, keys=keys)

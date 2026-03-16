@@ -4,6 +4,7 @@ import logging
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
+from airflow.models import Variable
 
 # Import utils functions
 import sys
@@ -20,6 +21,8 @@ from utils.airflow_utils import (
 )
 
 logger = logging.getLogger(__name__)
+
+only_office_conn = Variable.get("only_office_conn", deserialize_json=True)
 
 
 class DagFactory:
@@ -119,8 +122,16 @@ class DagFactory:
                     **context
                 )
             elif function_name == "only_office_to_pg":
-                #TODO: write the function to load file from OnlyOffice to PostgreSQL
-                pass
+                return load_only_office_file_to_postgres(
+                    conn_username=only_office_conn.get("username"),
+                    conn_password=only_office_conn.get("password"),
+                    drive_url=job_config.get("drive_url"),
+                    target_conn_id=job_config.get("target_conn_id"),
+                    target_table=job_config.get("dst"),
+                    load_type=job_config.get("load_type", "overwrite"),
+                    keys=job_config.get("keys"),
+                    **context
+                )
             else:
                 raise ValueError(f"Unknown function: {function_name}")
         
@@ -141,26 +152,10 @@ class DagFactory:
         
         # Generate task_id based on destination or API endpoint
         dst = job_config.get("dst")
-        api_url = job_config.get("api_url")
-        query_path = job_config.get("query_path")
         function_name = job_config.get("function")
-        
-        if dst:
-            # Extract table name from schema.table format and remove _dst suffix
-            table_name = dst.split(".")[-1]
-            task_id =  "_".join([function_name, table_name])
-            return task_id
-        elif api_url:
-            # Extract last part of API URL
-            task_id = "_".join([function_name, api_url.split("/")[-1]])
-            return task_id
-        elif query_path:
-            # Extract from query path (remove .sql extension)
-            task_id = "_".join([function_name, query_path.replace(".sql", "")])
-            return task_id
-        else:
-            # Fallback - should not reach here
-            return f"task_{id(job_config)}"
+
+        return f"{function_name}_{dst.split('.')[-1]}"
+
 
     def generate_dag(self, config):
         """Generate a DAG from configuration dictionary.
@@ -219,16 +214,22 @@ class DagFactory:
             task_id = self.generate_task_id(job_config)
             depends_on = job_config.get("depends_on", [])
             
-            # If depends_on is a list of table names, find the tasks that produce them
+            # If depends_on is a list of table names, find all tasks that produce them
             if depends_on:
                 for dep in depends_on:
-                    # Find task that writes to the dependent table
-                    for dep_idx, dep_job in enumerate(jobs[:idx]):
+                    dependency_found = False
+                    # Search all jobs for the table producer, not only earlier jobs
+                    for _, dep_job in enumerate(jobs):
                         if dep_job.get("dst") == dep:
                             dep_task_id = self.generate_task_id(dep_job)
                             if dep_task_id in tasks and task_id in tasks:
                                 tasks[dep_task_id] >> tasks[task_id]
+                                dependency_found = True
                                 logger.info(f"Set dependency: {dep_task_id} >> {task_id}")
+                    if not dependency_found:
+                        logger.warning(
+                            f"Dependency target '{dep}' for task '{task_id}' not found in jobs list."
+                        )
         
         return dag
 

@@ -36,7 +36,8 @@
             "target_conn_id": "pg-bssn-dwh",
             "dst": "public.joined_data_dst",
             "depends_on": [
-                "public.kinerja_keamanan_siber_dst"
+                "public.kinerja_keamanan_siber_dst",
+                "public.only_office_data_dst"
             ],
             "load_type": "upsert",
             "keys": ["id_stakeholder"]
@@ -46,6 +47,14 @@
             "api_url": "http://dummy-api-server:8000/nilai_csm",
             "target_conn_id": "pg-bssn-dwh",
             "dst": "public.nilai_csm_dst",
+            "load_type": "upsert",
+            "keys": ["id_stakeholder"]
+        },
+        {
+            "function": "only_office_to_pg",
+            "drive_url": "https://onlyoffice.bssn.go.id/drive/f/1234567890abcdef",
+            "target_conn_id": "pg-bssn-dwh",
+            "dst": "public.only_office_data_dst",
             "load_type": "upsert",
             "keys": ["id_stakeholder"]
         }
