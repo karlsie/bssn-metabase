@@ -140,7 +140,16 @@ def query_dwh_to_dwh(
     write_postgredb(df, engine, target_table, load_type=load_type, keys=keys)
 
 
-def load_only_office_file_to_postgres(conn_username, conn_password, drive_url, target_conn_id, target_table, load_type="overwrite", keys=None, **context):
+def load_only_office_file_to_postgres(
+    conn_username,
+    conn_password,
+    drive_url,
+    target_conn_id,
+    target_table,
+    load_type="overwrite",
+    keys=None,
+    **context,
+):
     files = list_files_in_only_office(conn_username, conn_password)
     if not files:
         print("No files found in OnlyOffice.")
@@ -149,7 +158,9 @@ def load_only_office_file_to_postgres(conn_username, conn_password, drive_url, t
     for file in files:
         print(f"Processing file: {file}")
         download_file_from_only_office(file, drive_url, conn_username, conn_password)
-    
+
         content = read_file_from_only_office(f"/tmp/{file}")
 
-        write_postgredb(content, target_conn_id, target_table, load_type=load_type, keys=keys)
+        write_postgredb(
+            content, target_conn_id, target_table, load_type=load_type, keys=keys
+        )

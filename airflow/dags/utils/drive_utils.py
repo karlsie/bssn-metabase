@@ -22,7 +22,7 @@ def download_file_from_only_office(file, drive_url, conn_username, conn_password
 
     response.raise_for_status()
 
-    with open(f"/tmp/{file}", 'wb') as f:
+    with open(f"/tmp/{file}", "wb") as f:
         f.write(response.content)
 
     print(f"File downloaded successfully: /tmp/{file}")
@@ -30,7 +30,7 @@ def download_file_from_only_office(file, drive_url, conn_username, conn_password
 
 def read_file_from_only_office(downloaded_file_path):
     # Placeholder for reading file content from OnlyOffice
-    with open(downloaded_file_path, 'r') as f:
+    with open(downloaded_file_path, "r") as f:
         content = f.read()
     print(f"File content read successfully: {downloaded_file_path}")
     return content
