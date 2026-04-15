@@ -52,7 +52,8 @@
         },
         {
             "function": "only_office_to_pg",
-            "drive_url": "https://drive.bssn.go.id/remote.php/dav/files/airflow_ingestion/shared_folder/TESTING.xlsx",
+            "drive_url": "https://drive.bssn.go.id/remote.php/dav/files/airflow_ingestion/shared_folder",
+            "filename": "TESTING.xlsx",
             "target_conn_id": "pg-bssn-dwh",
             "dst": "public.only_office_data_dst",
             "load_type": "upsert",
