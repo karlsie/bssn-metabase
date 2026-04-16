@@ -61,7 +61,7 @@ def construct_failure_message(context):
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": f"Please check the [Airflow UI]({AIRFLOW_URL}) for more details."
+                    "text": f"Please check the <{AIRFLOW_URL}|Airflow UI> for more details."
                 }
             }
         ]
