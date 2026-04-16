@@ -26,8 +26,10 @@ airflow/
 │   └── utils/
 │       ├── __init__.py
 │       ├── airflow_utils.py            # Task execution functions
-│       ├── db_utils.py                 # Database utility functions
-│       └── api_utils.py                # API related utilities
+│       ├── api_utils.py                # REST API integration utilities
+│       ├── db_utils.py                 # Database connection and query utilities
+│       ├── drive_utils.py              # OnlyOffice file download and parsing
+│       └── notif_utils.py              # Slack notification utilities
 ├── logs/                                # DAG execution logs (auto-generated)
 ├── plugins/                             # Custom plugins directory
 ├── docker-compose.yaml                  # Docker Compose configuration
@@ -233,6 +235,31 @@ REST API utilities:
   - Fetches JSON data from API
   - Handles errors and retries
   - Returns parsed JSON response
+
+### `drive_utils.py`
+
+OnlyOffice file handling utilities:
+
+- **`download_file_from_only_office(file_url, filename, token, password)`**
+  - Downloads files from OnlyOffice servers
+  - Supports basic authentication with token and password
+  - Saves file to `/tmp/` directory
+
+- **`read_file_from_only_office(downloaded_file_path, format)`**
+  - Reads downloaded files (CSV, XLSX, XLS formats)
+  - Automatically adds `created_at` timestamp column
+  - Returns pandas DataFrame with cleaned data
+  - Parameters: `downloaded_file_path`, `format` (csv/xlsx/xls)
+
+### `notif_utils.py`
+
+Slack notification utilities:
+
+- **`construct_failure_message(context)`**
+  - Constructs formatted Slack message payload for DAG failures
+  - Extracts task information (dag_id, run_id, task_id, timestamps)
+  - Includes exception details and formatted status
+  - Used for failure callbacks to send alerts to Slack
 
 ## DAG Factory
 
