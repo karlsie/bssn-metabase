@@ -3,9 +3,12 @@ import pandas as pd
 from datetime import datetime
 
 
-def download_file_from_only_office(file_url, filename):
+def download_file_from_only_office(file_url, filename, token, password):
     print(f"Downloading file from URL: {file_url}")
-    response = requests.get(file_url)
+    response = requests.get(
+        file_url,
+        auth=(token, password)
+    )
 
     response.raise_for_status()
 
@@ -28,6 +31,8 @@ def read_file_from_only_office(downloaded_file_path, format):
     
     # Add created_at timestamp
     df['created_at'] = datetime.now()
+
+    print(df.columns)
     
     print(f"File read successfully: {downloaded_file_path}")
     return df

@@ -51,12 +51,15 @@
         },
         {
             "function": "only_office_to_pg",
+            "token": "fZFX4AnFTneMwbB",
+            "password": "test123@56",
             "file_url": "https://drive.bssn.go.id/public.php/dav/files/fZFX4AnFTneMwbB/?accept=zip",
             "filename": "TESTING.xlsx",
             "format": "xlsx",
             "target_conn_id": "pg-bssn-dwh",
             "dst": "public.only_office_data_dst",
-            "load_type": "overwrite"
+            "load_type": "upsert",
+            "keys": ["id_stakeholder"]
         }
     ]
 }

@@ -125,6 +125,8 @@ class DagFactory:
                 return load_only_office_file_to_postgres(
                     # conn_username=only_office_conn.get("username"),
                     # conn_password=only_office_conn.get("password"),
+                    token=job_config.get("token"),
+                    password=job_config.get("password"),
                     file_url=job_config.get("file_url"),
                     filename=job_config.get("filename"),
                     format=job_config.get("format"),

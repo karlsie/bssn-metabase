@@ -142,6 +142,8 @@ def query_dwh_to_dwh(
 def load_only_office_file_to_postgres(
     # conn_username,
     # conn_password,
+    token,
+    password,
     file_url,
     format,
     filename,
@@ -160,6 +162,8 @@ def load_only_office_file_to_postgres(
     # conn_password = conn_password or conf.get(
     #     "conn_password", context["params"].get("conn_password")
     # )
+    token = token or conf.get("token", context["params"].get("token"))
+    password = password or conf.get("password", context["params"].get("password"))
     file_url = file_url or conf.get(
         "file_url", context["params"].get("file_url")
     )
@@ -182,10 +186,12 @@ def load_only_office_file_to_postgres(
     keys = keys or conf.get("keys", context["params"].get("keys"))
 
     print(f"Processing file: {filename}")
-    download_file_from_only_office(file_url, filename)
+    download_file_from_only_office(file_url, filename, token, password)
 
     content = read_file_from_only_office(f"/tmp/{filename}", format)
 
+    hook = PostgresHook(postgres_conn_id=target_conn_id)
+    engine = hook.get_sqlalchemy_engine()
     write_postgredb(
-        content, target_conn_id, target_table, load_type=load_type, keys=keys
+        content, engine, target_table, load_type=load_type, keys=keys
     )
