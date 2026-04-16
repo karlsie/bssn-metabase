@@ -1,10 +1,10 @@
 import json
 import os
 import logging
-import requests
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
+from airflow.providers.slack.operators.slack_webhook import SlackWebhookOperator
 from airflow.models import Variable
 
 # Import utils functions
@@ -14,6 +14,7 @@ from pathlib import Path
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
 
+from utils.notif_utils import construct_failure_message
 from utils.airflow_utils import (
     transfer_postgres_to_postgres,
     query_dwh_to_dwh,
@@ -28,64 +29,17 @@ only_office_conn = Variable.get("only_office_conn", deserialize_json=True)
 
 def send_failure_notification(context):
     """Send Slack notification on DAG failure."""
-    dag_id = context['dag'].dag_id
-    task_id = context['task'].task_id
-    execution_date = context['execution_date']
-    exception = context.get('exception')
+
+    message_dict = construct_failure_message(context)
     
-    # Get Slack webhook URL from Airflow variables
-    slack_webhook_url = Variable.get("slack_failure_webhook_url")
-    if not slack_webhook_url:
-        logger.warning("Slack webhook URL not configured. Skipping failure notification.")
-        return
-    
-    message = {
-        "text": f"🚨 Airflow DAG Failure Alert",
-        "blocks": [
-            {
-                "type": "header",
-                "text": {
-                    "type": "plain_text",
-                    "text": "🚨 DAG Failure Alert"
-                }
-            },
-            {
-                "type": "section",
-                "fields": [
-                    {
-                        "type": "mrkdwn",
-                        "text": f"*DAG ID:*\n{dag_id}"
-                    },
-                    {
-                        "type": "mrkdwn",
-                        "text": f"*Task ID:*\n{task_id}"
-                    },
-                    {
-                        "type": "mrkdwn",
-                        "text": f"*Execution Date:*\n{execution_date}"
-                    },
-                    {
-                        "type": "mrkdwn",
-                        "text": f"*Exception:*\n```{str(exception)[:500]}```"
-                    }
-                ]
-            },
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": "Please check the Airflow UI for more details."
-                }
-            }
-        ]
-    }
-    
-    try:
-        response = requests.post(slack_webhook_url, json=message)
-        response.raise_for_status()
-        logger.info(f"Failure notification sent to Slack for DAG {dag_id}, task {task_id}")
-    except Exception as e:
-        logger.error(f"Failed to send Slack notification: {str(e)}")
+    slack_alert = SlackWebhookOperator(
+        task_id="slack_failure_notification",
+        slack_webhook_conn_id="slack_api_default",
+        message=message_dict["text"],
+        blocks=message_dict["blocks"],
+        channel="#pipeline-updates",
+    )
+    return slack_alert.execute(context=context)
 
 
 class DagFactory:
@@ -130,6 +84,7 @@ class DagFactory:
             "email_on_failure": default_args.get("email_on_failure", False) == True,
             "retries": default_args.get("retries", 1),
             "retry_delay": timedelta(minutes=default_args.get("retry_delay", 5)),
+            "on_failure_callback": send_failure_notification,
         }
 
         # Parse start_date
@@ -249,11 +204,7 @@ class DagFactory:
             "catchup": catchup,
             "tags": tags,
         }
-        
-        # Add failure callback if email_on_failure is enabled (reusing the flag for Slack notifications)
-        if default_args.get("email_on_failure", False):
-            dag_kwargs["on_failure_callback"] = send_failure_notification
-        
+
         dag = DAG(**dag_kwargs)
 
         # Create tasks from jobs

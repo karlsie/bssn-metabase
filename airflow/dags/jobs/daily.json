@@ -4,7 +4,7 @@
         "owner": "bssn-dwh",
         "depends_on_past": false,
         "email_on_failure": true,
-        "retries": 2,
+        "retries": 0,
         "retry_delay": 5,
         "start_date": "2026-03-01",
         "schedule": "0 2 * * *",
