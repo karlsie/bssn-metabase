@@ -158,23 +158,21 @@ class DagFactory:
         return task_func
 
     def generate_task_id(self, job_config):
-        """Generate a meaningful task_id based on job configuration.
+        """Get task_id from job configuration.
 
         Args:
             job_config: Configuration dictionary for the job
 
         Returns:
-            Generated task_id string
+            task_id string from configuration
+
+        Raises:
+            ValueError: If task_id is not provided in job configuration
         """
-        # Check if task_id is explicitly provided
-        if "task_id" in job_config:
-            return job_config["task_id"]
-
-        # Generate task_id based on destination or API endpoint
-        dst = job_config.get("dst")
-        function_name = job_config.get("function")
-
-        return f"{function_name}_{dst.split('.')[-1]}"
+        task_id = job_config.get("task_id")
+        if not task_id:
+            raise ValueError("task_id is required in job configuration")
+        return task_id
 
     def generate_dag(self, config):
         """Generate a DAG from configuration dictionary.
@@ -238,23 +236,17 @@ class DagFactory:
             task_id = self.generate_task_id(job_config)
             depends_on = job_config.get("depends_on", [])
 
-            # If depends_on is a list of table names, find all tasks that produce them
+            # If depends_on is a list of task_ids, create direct dependencies
             if depends_on:
-                for dep in depends_on:
-                    dependency_found = False
-                    # Search all jobs for the table producer, not only earlier jobs
-                    for _, dep_job in enumerate(jobs):
-                        if dep_job.get("dst") == dep:
-                            dep_task_id = self.generate_task_id(dep_job)
-                            if dep_task_id in tasks and task_id in tasks:
-                                tasks[dep_task_id] >> tasks[task_id]
-                                dependency_found = True
-                                logger.info(
-                                    f"Set dependency: {dep_task_id} >> {task_id}"
-                                )
-                    if not dependency_found:
+                for dep_task_id in depends_on:
+                    if dep_task_id in tasks and task_id in tasks:
+                        tasks[dep_task_id] >> tasks[task_id]
+                        logger.info(
+                            f"Set dependency: {dep_task_id} >> {task_id}"
+                        )
+                    else:
                         logger.warning(
-                            f"Dependency target '{dep}' for task '{task_id}' not found in jobs list."
+                            f"Dependency target '{dep_task_id}' for task '{task_id}' not found in tasks."
                         )
 
         return dag

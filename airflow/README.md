@@ -59,7 +59,7 @@ No manual DAG file creation needed—just add/modify JSON files!
   - Loads cybersecurity metrics from multiple sources
   - Performs data validation and transformation
   - Configured in `dags/jobs/daily.json`
-  - Tasks: `kinerja_keamanan_siber`, `nilai_indeks_kami`, `joined_data`, `nilai_csm`
+  - Tasks: `kinerja_keamanan_siber`, `nilai_indeks_kami`, `joined_data`, `nilai_csm`, `only_office_data`
 
 - **`pipeline_weekly`** – Runs weekly on Mondays at 02:00 UTC
   - Aggregates weekly asset and system metrics
@@ -85,6 +85,14 @@ DAGs support three types of tasks:
    - Fetches JSON data from APIs
    - Loads into PostgreSQL tables
 
+4. **`only_office_to_pg`** – OnlyOffice file ingestion
+   - Downloads files from OnlyOffice servers
+   - Parses CSV/XLSX/XLS files and loads into PostgreSQL
+
+### Task ID Configuration
+
+Task IDs must be explicitly specified in the job configuration using the `task_id` field. The factory no longer generates task IDs automatically.
+
 ### JSON Configuration Format
 
 ```json
@@ -103,14 +111,25 @@ DAGs support three types of tasks:
     },
     "jobs": [
         {
-          "function": "pg_to_pg",
-          "source_conn_id": "pg-bssn-sources",
-          "target_conn_id": "pg-bssn-dwh",
-          "src": "public.kinerja_keamanan_siber",
-          "dst": "public.kinerja_keamanan_siber_dst",
-          "load_type": "upsert",
-          "keys": ["id_stakeholder"]
+            "task_id": "pg_to_pg_kinerja_keamanan_siber_dst",
+            "function": "pg_to_pg",
+            "source_conn_id": "pg-bssn-sources",
+            "target_conn_id": "pg-bssn-dwh",
+            "src": "public.kinerja_keamanan_siber",
+            "dst": "public.kinerja_keamanan_siber_dst",
+            "load_type": "upsert",
+            "keys": ["id_stakeholder"]
         },
+        {
+            "task_id": "dwh_to_dwh_joined_data_dst",
+            "function": "dwh_to_dwh",
+            "query_path": "joined_data.sql",
+            "target_conn_id": "pg-bssn-dwh",
+            "dst": "public.joined_data_dst",
+            "depends_on": ["pg_to_pg_kinerja_keamanan_siber_dst"],
+            "load_type": "upsert",
+            "keys": ["id_stakeholder"]
+        }
     ]
 }
 ```
@@ -270,10 +289,10 @@ The `DagFactory` class in `dag_factory.py` automatically generates DAGs from JSO
 1. **Reads JSON files** from `dags/jobs/` directory
 2. **Parses configuration** including:
    - DAG metadata (owner, retries, schedule)
-   - Job definitions (function type, source, destination, load mode)
-   - Task dependencies
-3. **Creates tasks** with meaningful IDs based on table/API names
-4. **Sets up dependencies** between tasks based on `depends_on` field
+   - Job definitions (function type, source, destination, load mode, task_id)
+   - Task dependencies specified by task_id
+3. **Creates tasks** using the specified `task_id` from configuration
+4. **Sets up dependencies** between tasks based on `depends_on` field containing task_ids
 5. **Registers DAGs** in Airflow's global namespace
 
 ### Adding a New DAG
@@ -291,6 +310,7 @@ To add a task to `pipeline_daily`, edit `dags/jobs/daily.json`:
 "jobs": [
     { ... existing jobs ... },
     {
+        "task_id": "pg_to_pg_new_target",
         "function": "pg_to_pg",
         "source_conn_id": "pg-bssn-sources",
         "target_conn_id": "pg-bssn-dwh",
@@ -298,15 +318,12 @@ To add a task to `pipeline_daily`, edit `dags/jobs/daily.json`:
         "dst": "public.new_target",
         "load_type": "upsert",
         "keys": ["id"],
-        "depends_on": ["public.joined_data_dst"]
+        "depends_on": ["dwh_to_dwh_joined_data_dst"]
     }
 ]
 ```
 
-The factory will:
-- Generate task_id `new_target` from destination table
-- Create the task
-- Set dependency on the `joined_data` task
+The factory will use the specified `task_id` and set dependency on the task with `task_id` "dwh_to_dwh_joined_data_dst".
 
 ## Docker Services
 

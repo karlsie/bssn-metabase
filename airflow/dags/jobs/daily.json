@@ -13,6 +13,7 @@
     },
     "jobs": [
         {
+            "task_id": "pg_to_pg_kinerja_keamanan_siber_dst",
             "function": "pg_to_pg",
             "source_conn_id": "pg-bssn-sources",
             "target_conn_id": "pg-bssn-dwh",
@@ -22,6 +23,7 @@
             "keys": ["id_stakeholder"]
         },
         {
+            "task_id": "pg_to_pg_nilai_indeks_kami_dst",
             "function": "pg_to_pg",
             "source_conn_id": "pg-bssn-sources",
             "target_conn_id": "pg-bssn-dwh",
@@ -31,17 +33,21 @@
             "keys": ["id_stakeholder"]
         },
         {
+            "task_id": "dwh_to_dwh_joined_data_dst",
             "function": "dwh_to_dwh",
             "query_path": "joined_data.sql",
             "target_conn_id": "pg-bssn-dwh",
             "dst": "public.joined_data_dst",
             "depends_on": [
-                "public.kinerja_keamanan_siber_dst"
+                "pg_to_pg_kinerja_keamanan_siber_dst",
+                "pg_to_pg_nilai_indeks_kami_dst",
+                "only_office_to_pg_only_office_data_dst"
             ],
             "load_type": "upsert",
             "keys": ["id_stakeholder"]
         },
         {
+            "task_id": "rest_api_to_pg_nilai_csm_dst",
             "function": "rest_api_to_pg",
             "api_url": "http://dummy-api-server:8000/nilai_csm",
             "target_conn_id": "pg-bssn-dwh",
@@ -50,6 +56,7 @@
             "keys": ["id_stakeholder"]
         },
         {
+            "task_id": "only_office_to_pg_only_office_data_dst",
             "function": "only_office_to_pg",
             "only_office_conn": "TESTING",
             "file_url": "https://drive.bssn.go.id/public.php/dav/files/fZFX4AnFTneMwbB/?accept=zip",

@@ -13,6 +13,7 @@
     },
     "jobs": [
         {
+            "task_id": "pg_to_pg_aset_tik_dst",
             "function": "pg_to_pg",
             "source_conn_id": "pg-bssn-sources",
             "target_conn_id": "pg-bssn-dwh",
@@ -22,6 +23,7 @@
             "keys": ["id_stakeholder"]
         },
         {
+            "task_id": "pg_to_pg_aset_sistem_dst",
             "function": "pg_to_pg",
             "source_conn_id": "pg-bssn-sources",
             "target_conn_id": "pg-bssn-dwh",

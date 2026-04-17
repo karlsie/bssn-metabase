@@ -13,6 +13,7 @@
     },
     "jobs": [
         {
+            "task_id": "rest_api_to_pg_stakeholder_dst",
             "function": "rest_api_to_pg",
             "target_conn_id": "pg-bssn-dwh",
             "api_url": "http://dummy-api-server:8000/stakeholder",
