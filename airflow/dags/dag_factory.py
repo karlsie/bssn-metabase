@@ -32,7 +32,7 @@ def send_failure_notification(context):
     """Send Slack notification on DAG failure."""
 
     message_dict = construct_failure_message(context, AIRFLOW_URL)
-    
+
     slack_alert = SlackWebhookOperator(
         task_id="slack_failure_notification",
         slack_webhook_conn_id="slack_api_default",
@@ -142,8 +142,12 @@ class DagFactory:
                 )
             elif function_name == "only_office_to_pg":
                 return load_only_office_file_to_postgres(
-                    token=only_office_conn.get(job_config.get("only_office_conn")).get("token"),
-                    password=only_office_conn.get(job_config.get("only_office_conn")).get("password"),
+                    token=only_office_conn.get(job_config.get("only_office_conn")).get(
+                        "token"
+                    ),
+                    password=only_office_conn.get(
+                        job_config.get("only_office_conn")
+                    ).get("password"),
                     file_url=job_config.get("file_url"),
                     filename=job_config.get("filename"),
                     format=job_config.get("format"),
@@ -242,9 +246,7 @@ class DagFactory:
                 for dep_task_id in depends_on:
                     if dep_task_id in tasks and task_id in tasks:
                         tasks[dep_task_id] >> tasks[task_id]
-                        logger.info(
-                            f"Set dependency: {dep_task_id} >> {task_id}"
-                        )
+                        logger.info(f"Set dependency: {dep_task_id} >> {task_id}")
                     else:
                         logger.warning(
                             f"Dependency target '{dep_task_id}' for task '{task_id}' not found in tasks."

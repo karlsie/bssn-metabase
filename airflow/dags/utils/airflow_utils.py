@@ -164,15 +164,9 @@ def load_only_office_file_to_postgres(
     # )
     token = token or conf.get("token", context["params"].get("token"))
     password = password or conf.get("password", context["params"].get("password"))
-    file_url = file_url or conf.get(
-        "file_url", context["params"].get("file_url")
-    )
-    filename = filename or conf.get(
-        "filename", context["params"].get("filename")
-    )
-    format = format or conf.get(
-        "format", context["params"].get("format")
-    )
+    file_url = file_url or conf.get("file_url", context["params"].get("file_url"))
+    filename = filename or conf.get("filename", context["params"].get("filename"))
+    format = format or conf.get("format", context["params"].get("format"))
     target_conn_id = target_conn_id or conf.get(
         "target_conn_id", context["params"].get("target_conn_id")
     )
@@ -192,6 +186,4 @@ def load_only_office_file_to_postgres(
 
     hook = PostgresHook(postgres_conn_id=target_conn_id)
     engine = hook.get_sqlalchemy_engine()
-    write_postgredb(
-        content, engine, target_table, load_type=load_type, keys=keys
-    )
+    write_postgredb(content, engine, target_table, load_type=load_type, keys=keys)
