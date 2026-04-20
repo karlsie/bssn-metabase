@@ -26,7 +26,7 @@ airflow/
 │   └── utils/
 │       ├── __init__.py
 │       ├── airflow_utils.py            # Task execution functions
-│       ├── api_utils.py                # REST API integration utilities
+│       ├── api_utils.py                # REST API data fetching utilities (returns pandas DataFrames)
 │       ├── db_utils.py                 # Database connection and query utilities
 │       ├── drive_utils.py              # OnlyOffice file download and parsing
 │       └── notif_utils.py              # Slack notification utilities
@@ -165,7 +165,7 @@ Task IDs must be explicitly specified in the job configuration using the `task_i
    ```
 
 4. **Access Airflow UI:**
-   - URL: `http://localhost:8080`
+   - URL: based on Airflow Variable `airflow_url`
    - Default credentials: `airflow` / `airflow`
 
 ### Shutdown
@@ -185,8 +185,8 @@ Configure in `.env` file or modify `docker-compose.yaml`:
 - `AIRFLOW_IMAGE_NAME` - Docker image name (default: `apache/airflow:3.1.5`)
 - `AIRFLOW_UID` - User ID in containers (default: `50000`)
 - `AIRFLOW_PROJ_DIR` - Base directory for volumes (default: `.`)
-- `_AIRFLOW_WWW_USER_USERNAME` - Admin username (default: `airflow`)
-- `_AIRFLOW_WWW_USER_PASSWORD` - Admin password (default: `airflow`)
+- `_AIRFLOW_WWW_USER_USERNAME`
+- `_AIRFLOW_WWW_USER_PASSWORD`
 
 ### PostgreSQL Connections
 
@@ -274,7 +274,7 @@ OnlyOffice file handling utilities:
 
 - **`read_file_from_only_office(downloaded_file_path, format)`**
   - Reads downloaded files (CSV, XLSX, XLS formats)
-  - Automatically adds `created_at` timestamp column
+  - Automatically adds `updated_at` timestamp column
   - Returns pandas DataFrame with cleaned data
   - Parameters: `downloaded_file_path`, `format` (csv/xlsx/xls)
 

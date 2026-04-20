@@ -16,7 +16,7 @@ def download_file_from_only_office(file_url, filename, token, password):
 
 
 def read_file_from_only_office(downloaded_file_path, format):
-    """Read CSV, XLSX, or XLS files based on format parameter and add created_at timestamp."""
+    """Read CSV, XLSX, or XLS files based on format parameter and add updated_at timestamp."""
     format = format.lower()
 
     if format == "csv":
@@ -28,8 +28,8 @@ def read_file_from_only_office(downloaded_file_path, format):
             f"Unsupported file format: {format}. Supported: csv, xlsx, xls"
         )
 
-    # Add created_at timestamp
-    df["created_at"] = datetime.now()
+    # Add updated_at timestamp
+    df["updated_at"] = datetime.now()
 
     print(df.columns)
 
