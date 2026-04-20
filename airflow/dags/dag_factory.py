@@ -133,7 +133,8 @@ class DagFactory:
                 )
             elif function_name == "rest_api_to_pg":
                 return load_api_to_postgres(
-                    api_url=job_config.get("api_url"),
+                    http_conn_id=job_config.get("http_conn_id"),
+                    endpoint=job_config.get("endpoint"),
                     target_table=job_config.get("dst"),
                     target_conn_id=job_config.get("target_conn_id"),
                     load_type=job_config.get("load_type", "overwrite"),

@@ -86,10 +86,10 @@ x-airflow-common:
       condition: service_healthy
 
 services:
-  # dummy-api-server:
-  #   image: dummy-api-server:latest
-  #   ports:
-  #     - "8000:8000"
+  dummy-api-server:
+    image: dummy-api-server:latest
+    ports:
+      - "8000:8000"
   postgres:
     image: postgres:16
     environment:

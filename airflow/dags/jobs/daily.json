@@ -49,7 +49,8 @@
         {
             "task_id": "rest_api_to_pg_nilai_csm_dst",
             "function": "rest_api_to_pg",
-            "api_url": "http://dummy-api-server:8000/nilai_csm",
+            "http_conn_id": "dummy_api_server",
+            "endpoint": "/nilai_csm",
             "target_conn_id": "pg-bssn-dwh",
             "dst": "public.nilai_csm_dst",
             "load_type": "upsert",

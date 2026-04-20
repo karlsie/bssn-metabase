@@ -64,7 +64,8 @@ def transfer_postgres_to_postgres(
 
 
 def load_api_to_postgres(
-    api_url=None,
+    http_conn_id=None,
+    endpoint=None,
     target_conn_id=None,
     target_table=None,
     load_type="append",
@@ -77,7 +78,10 @@ def load_api_to_postgres(
     """
 
     conf = context["dag_run"].conf or {}
-    api_url = api_url or conf.get("api_url", context["params"].get("api_url"))
+    http_conn_id = http_conn_id or conf.get(
+        "http_conn_id", context["params"].get("http_conn_id")
+    )
+    endpoint = endpoint or conf.get("endpoint", context["params"].get("endpoint"))
     target_conn_id = target_conn_id or conf.get(
         "target_conn_id", context["params"].get("target_conn_id")
     )
@@ -91,7 +95,7 @@ def load_api_to_postgres(
     keys = keys or conf.get("keys", context["params"].get("keys"))
 
     headers = {"Content-Type": "application/json"}
-    df = fetch_api_data(api_url, headers=headers)
+    df = fetch_api_data(http_conn_id, endpoint, headers=headers)
 
     hook = PostgresHook(postgres_conn_id=target_conn_id)
     engine = hook.get_sqlalchemy_engine()
@@ -140,8 +144,6 @@ def query_dwh_to_dwh(
 
 
 def load_only_office_file_to_postgres(
-    # conn_username,
-    # conn_password,
     token,
     password,
     file_url,
@@ -156,12 +158,6 @@ def load_only_office_file_to_postgres(
     """Fetch files from OnlyOffice, read the content, and load into PostgreSQL."""
 
     conf = context["dag_run"].conf or {}
-    # conn_username = conn_username or conf.get(
-    #     "conn_username", context["params"].get("conn_username")
-    # )
-    # conn_password = conn_password or conf.get(
-    #     "conn_password", context["params"].get("conn_password")
-    # )
     token = token or conf.get("token", context["params"].get("token"))
     password = password or conf.get("password", context["params"].get("password"))
     file_url = file_url or conf.get("file_url", context["params"].get("file_url"))
