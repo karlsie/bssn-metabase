@@ -1,4 +1,6 @@
 from airflow.providers.postgres.hooks.postgres import PostgresHook
+from airflow.providers.http.hooks.http import HttpHook
+
 from utils.db_utils import read_postgredb, write_postgredb
 from utils.api_utils import fetch_api_data
 from utils.drive_utils import (
@@ -95,7 +97,8 @@ def load_api_to_postgres(
     keys = keys or conf.get("keys", context["params"].get("keys"))
 
     headers = {"Content-Type": "application/json"}
-    df = fetch_api_data(http_conn_id, endpoint, headers=headers)
+    http_hook = HttpHook(http_conn_id=http_conn_id, method="GET")
+    df = fetch_api_data(http_hook, endpoint, headers=headers)
 
     hook = PostgresHook(postgres_conn_id=target_conn_id)
     engine = hook.get_sqlalchemy_engine()

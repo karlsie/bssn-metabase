@@ -1,10 +1,9 @@
 import json
 import pandas as pd
-from airflow.providers.http.hooks.http import HttpHook
 
 
 def fetch_api_data(
-    http_conn_id,
+    http_hook,
     endpoint,
     params=None,
     headers=None,
@@ -12,21 +11,19 @@ def fetch_api_data(
     """Fetch data from an API endpoint using Airflow HTTPHook and return as pandas DataFrame.
 
     Args:
+        http_hook: An instance of Airflow's HttpHook configured with the appropriate connection ID.
         endpoint: API endpoint path (relative to the hook's base_url)
         params: Query parameters (dict)
         headers: Custom headers (dict)
-        http_conn_id: Airflow HTTP connection ID (default: http_default)
 
     Returns:
         pd.DataFrame: Normalized data from API with lowercase column names and updated_at timestamp
     """
     try:
-        print(f"Using HTTP connection ID: {http_conn_id}")
         print(
             f"Fetching data from API endpoint: {endpoint} with params: {params} and headers: {headers}"
         )
-        hook = HttpHook(http_conn_id=http_conn_id, method="GET")
-        response = hook.run(
+        response = http_hook.run(
             endpoint=endpoint,
             data=params,
             headers=headers,
