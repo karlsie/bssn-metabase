@@ -33,18 +33,17 @@ def get_orders(limit: int = 10, page: int = 1):
         )
 
     return {
-        "page": page,
-        "limit": limit,
-        "results": data,
-        "next": True if page < 5 else False,
+        "message": "true",
+        "status": "success",
+        "data": data,
     }
 
 
 @app.get("/nilai_csm")
 def get_nilai_csm():
-    return {"results": nilai_csm_data}
+    return {"message": "true", "status": "success", "data": nilai_csm_data}
 
 
 @app.get("/stakeholder")
 def get_stakeholder():
-    return {"results": stakeholder_data}
+    return {"message": "true", "status": "success", "data": stakeholder_data}
